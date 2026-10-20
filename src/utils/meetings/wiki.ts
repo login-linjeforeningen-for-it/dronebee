@@ -13,19 +13,13 @@ envLoad({ path: '.env' })
 const {
     TEKKOM_MEETINGS_URL,
     STYRET_MEETINGS_URL,
-    DISCORD_TEKKOM_ROLE_ID,
-    DISCORD_STYRET_ROLE_ID,
     WIKI_URL,
     WIKI_STYRET_TEMPLATE_ID,
     WIKI_TEKKOM_TEMPLATE_ID,
-    OUTLINE_STYRET_MEETINGS_URL = 'https://outline.login.no/s/doc/doc/styremoter-NoccT8oCxz',
-    OUTLINE_TEKKOM_MEETINGS_URL = 'https://outline.login.no/doc/meetings-uhV0CO42ly',
 } = process.env
 
 if (
     !TEKKOM_MEETINGS_URL
-    || !DISCORD_TEKKOM_ROLE_ID
-    || !DISCORD_STYRET_ROLE_ID
     || !STYRET_MEETINGS_URL
     || !WIKI_URL
     || !WIKI_STYRET_TEMPLATE_ID
@@ -37,10 +31,9 @@ if (
 type AutoCreateProps = {
     channel: TextChannel
     isStyret: boolean
-    styremote?: TextChannel
 }
 
-export default async function autoCreate({ channel, isStyret, styremote }: AutoCreateProps) {
+export default async function autoCreate({ channel, isStyret }: AutoCreateProps) {
     const path = getNextPathYearAndWeek(isStyret)
     const styret_id = Number(WIKI_STYRET_TEMPLATE_ID)
     const tekkom_id = Number(WIKI_TEKKOM_TEMPLATE_ID)
@@ -75,18 +68,6 @@ export default async function autoCreate({ channel, isStyret, styremote }: AutoC
     })
 
     console.log(`Create response for ${isStyret ? 'Styret' : 'TekKom'} at ${now}: ${JSON.stringify(createResponse)}`)
-
-    if (isStyret) {
-        const styretMsg = `<@&${DISCORD_STYRET_ROLE_ID}> Minner om Styremøte på LL kl 17. ` +
-            `[Agenda](${OUTLINE_STYRET_MEETINGS_URL}).`
-        console.log(styretMsg)
-        styremote?.send(styretMsg)
-    } else {
-        // The real message is moved to QueenBee, this log is only there to be
-        // able to track problems with the page creation automation.
-        console.log(`<@&${DISCORD_TEKKOM_ROLE_ID}> Minner om TekKom møte på onsdag kl 16 på LL. ` +
-            `[Agenda](${OUTLINE_TEKKOM_MEETINGS_URL}).`)
-    }
 
     updateIndex({ path, query: getQuery(isStyret ? STYRET_PAGE : TEKKOM_PAGE), isStyret })
 }
