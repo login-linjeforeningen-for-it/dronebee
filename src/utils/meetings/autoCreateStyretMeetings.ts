@@ -17,7 +17,7 @@ export default async function autoCreateStyretMeetings(client: Client) {
         throw new Error(`Channel with ID ${DISCORD_SAKER_TIL_STYREMOTER_CHANNEL_ID} not found in autoCreateStyretMeetings.ts`)
     }
 
-    Bun.cron('0 12 * * 1', () => {
+    Bun.cron('0 14 * * 1', () => {
         autoCreate({ channel, isStyret: true })
     })
 }
