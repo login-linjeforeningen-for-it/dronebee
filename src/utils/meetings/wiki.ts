@@ -1,7 +1,6 @@
 import { TextChannel } from 'discord.js'
 import updateStyretTemplate from '#utils/meetings/updateStyretTemplate.ts'
-import getQuery from '#utils/meetings/getQuery.ts'
-import requestWithRetries from '#utils/meetings/requestWithEntries.ts'
+import { getPage } from '#utils/meetings/wikiPage.ts'
 import getNextPathYearAndWeek from '#utils/meetings/getNextPathYearAndWeek.ts'
 import updateIndex from '#utils/meetings/updateIndexPage.ts'
 import createPage from '#utils/meetings/createPage.ts'
@@ -35,11 +34,9 @@ type AutoCreateProps = {
 
 export default async function autoCreate({ channel, isStyret }: AutoCreateProps) {
     const path = getNextPathYearAndWeek(isStyret)
-    const styret_id = Number(WIKI_STYRET_TEMPLATE_ID)
-    const tekkom_id = Number(WIKI_TEKKOM_TEMPLATE_ID)
-    const query = getQuery(isStyret ? styret_id : tekkom_id)
-    const fetchResponse = await requestWithRetries({ query })
-    const content = fetchResponse.data.pages.single.content
+    const templateId = isStyret ? WIKI_STYRET_TEMPLATE_ID : WIKI_TEKKOM_TEMPLATE_ID
+    const page = await getPage(templateId!)
+    const content = page.content
     const now = new Date().toISOString()
     const filledTemplate = content
         .replace(new RegExp(`${path.currentPath}`, 'g'), path.nextPath)
@@ -69,5 +66,5 @@ export default async function autoCreate({ channel, isStyret }: AutoCreateProps)
 
     console.log(`Create response for ${isStyret ? 'Styret' : 'TekKom'} at ${now}: ${JSON.stringify(createResponse)}`)
 
-    updateIndex({ path, query: getQuery(isStyret ? STYRET_PAGE : TEKKOM_PAGE), isStyret })
+    updateIndex({ path, pageId: isStyret ? STYRET_PAGE : TEKKOM_PAGE, isStyret })
 }

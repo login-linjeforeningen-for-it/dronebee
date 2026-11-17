@@ -1,4 +1,11 @@
 import requestWithRetries from '#utils/meetings/requestWithEntries.ts'
+import { renderPage } from '#utils/meetings/wikiPage.ts'
+
+const { WIKI_SITE_ID } = process.env
+
+if (!WIKI_SITE_ID) {
+    throw new Error('Missing WIKI_SITE_ID in createPage.ts')
+}
 
 type CreatePageProps = {
     content: string
@@ -8,30 +15,21 @@ type CreatePageProps = {
 }
 
 export default async function createPage({ content, description, path, title }: CreatePageProps) {
-    const mutation = `
-    mutation Page {
-        pages {
-            create (content: """${content}""", description: "${description}",
-            editor: "markdown", isPublished: true, isPrivate: false, locale: "en",
-            path: "${path}",
-            tags: ["TekKom", "TekKom Verv", "Møte", "TekKom Møte", "TekKom Verv Møte", "Meeting", "TekKom Meeting"],
-            title: "${title}") {
-                responseResult {
-                    succeeded,
-                    errorCode,
-                    slug,
-                    message
-                },
-                page {
-                    id,
-                    path,
-                    title
-                }
-            }
+    const result = await requestWithRetries({
+        path: `/sites/${WIKI_SITE_ID}/pages`,
+        method: 'POST',
+        body: {
+            content,
+            description,
+            editor: 'markdown',
+            locale: 'en',
+            path: path.replace(/^\//, ''),
+            publishState: 'published',
+            tags: ['TekKom', 'TekKom Verv', 'Møte', 'TekKom Møte', 'TekKom Verv Møte', 'Meeting', 'TekKom Meeting'],
+            title
         }
-    }
-    `
+    })
 
-    const result = await requestWithRetries({ query: mutation })
+    await renderPage(result.page.id)
     return result
 }

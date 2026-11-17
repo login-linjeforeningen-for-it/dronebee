@@ -1,6 +1,5 @@
-import { STYRET_PAGE, TEKKOM_PAGE } from '#constants'
 import logStack from '#utils/meetings/logStack.ts'
-import requestWithRetries from '#utils/meetings/requestWithEntries.ts'
+import { getPage, renderPage, updatePage } from '#utils/meetings/wikiPage.ts'
 import { envLoad } from 'utilbee'
 
 envLoad({ path: '.env' })
@@ -11,16 +10,9 @@ type ModifyPageProps = {
     isStyret: boolean
 }
 
-type UpdateMutationProps = {
-    id: number
-    content: string
-    description: string
-    title: string
-}
-
 type UpdateIndexProps = {
     path: Path
-    query: string
+    pageId: string
     isStyret: boolean
 }
 
@@ -34,42 +26,6 @@ const { TEKKOM_MEETINGS_URL, STYRET_MEETINGS_URL } = process.env
 
 if (!TEKKOM_MEETINGS_URL || !STYRET_MEETINGS_URL) {
     throw new Error('Missing essential environment variables in wiki.ts')
-}
-
-// Mutation to update the page content
-function updateMutation({ id, content, description, title }: UpdateMutationProps) {
-    return (
-        `
-            mutation Page {
-                pages {
-                    update (
-                        id: ${id}, 
-                        content: """${content}""", 
-                        description: "${description}", 
-                        title: "${title}", 
-                        editor: "code", 
-                        isPublished: true, 
-                        isPrivate: false, 
-                        locale: "en", 
-                        tags: "TekKom"
-                    ) {
-                        responseResult {
-                            succeeded,
-                            errorCode,
-                            slug,
-                            message
-                        },
-                        page {
-                            id,
-                            content,
-                            description,
-                            title
-                        }
-                    }
-                }
-            }
-        `
-    )
 }
 
 // Function to update the page content
@@ -93,8 +49,8 @@ function modifyPage({ existingHTML, path, isStyret }: ModifyPageProps) {
     }
 
     // Determines the section header to insert into
-    const styretString = '### Styremøter'
-    const tekkomString = '### Minutes'
+    const styretString = '::block-tab{label="Styremøter"}'
+    const tekkomString = '::block-tab{label="Minutes"}'
     const insertionPoint = existingHTML.indexOf(isStyret ? styretString : tekkomString)
 
     // Calculates the index to insert the new entry
@@ -106,29 +62,27 @@ function modifyPage({ existingHTML, path, isStyret }: ModifyPageProps) {
 }
 
 // Fetches the page, adds the new document, and writes it back
-export default async function updateIndex({ path, query, isStyret }: UpdateIndexProps) {
+export default async function updateIndex({ path, pageId, isStyret }: UpdateIndexProps) {
     try {
-        const fetchResponse = await requestWithRetries({ query })
-        const content = fetchResponse.data.pages.single.content
-        const updatedContent = modifyPage({ existingHTML: content, path, isStyret: content.includes('styremoter') })
+        const page = await getPage(pageId)
+        const updatedContent = modifyPage({
+            existingHTML: page.content,
+            path,
+            isStyret: page.content.includes('styremoter')
+        })
         const TekKomTitle = 'Meetings'
         const TekKomDescription = isStyret
             ? 'Styretmøte referater. Denne siden er automatisert. ' +
             'Endre med forsiktighet for å unngå å ødelegge automatisjonen. Rapporter feil til Styret.'
             : 'TekKom meeting agendas and minutes. This page is automatically managed. ' +
             'Please edit with care. Report errors to TekKom.'
-        const updateResponse = await requestWithRetries({
-            query: updateMutation({
-                id: isStyret ? STYRET_PAGE : TEKKOM_PAGE,
-                content: updatedContent,
-                description: TekKomDescription,
-                title: TekKomTitle
-            })
+        await updatePage(pageId, {
+            content: updatedContent,
+            description: TekKomDescription,
+            title: TekKomTitle
         })
-
-        if (updateResponse) {
-            console.log(`${isStyret ? 'Styret' : 'TekKom'} index file updated successfully.`)
-        }
+        await renderPage(pageId)
+        console.log(`${isStyret ? 'Styret' : 'TekKom'} index file updated successfully.`)
     } catch (error) {
         console.log(`Failed to update ${isStyret ? 'styret' : 'TekKom'} index file:\n${error}`)
         logStack(error)

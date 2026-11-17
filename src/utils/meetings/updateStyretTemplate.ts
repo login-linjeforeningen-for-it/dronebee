@@ -1,6 +1,5 @@
 import { Message, TextChannel } from 'discord.js'
-import getQuery from '#utils/meetings/getQuery.ts'
-import requestWithRetries from '#utils/meetings/requestWithEntries.ts'
+import { getPage } from '#utils/meetings/wikiPage.ts'
 import getLatestCase from '#utils/meetings/getLatestCase.ts'
 import uploadAttachmentToWiki from '#utils/meetings/uploadAttachment.ts'
 import { STYRET_PAGE } from '#constants'
@@ -47,9 +46,8 @@ export default async function updateStyretTemplate({channel, isStyret, template,
     }
 
     // Finds the latest case number
-    const query = getQuery(STYRET_PAGE)
-    const fetchResponse = await requestWithRetries({ query })
-    let caseNumber = await getLatestCase(fetchResponse.data.pages.single) + 1
+    const page = await getPage(STYRET_PAGE)
+    let caseNumber = await getLatestCase(page) + 1
     const messages = await meetingThread[1].messages.fetch({ limit: 100 })
     const reduced: MessageOverview = { orientations: [], discussions: [], statutes: [] }
     const year = new Date().getFullYear().toString().slice(2)
@@ -103,7 +101,7 @@ async function getContent({type, message, week, year}: GetContentProps) {
 
         if (result?.startsWith(week)) {
             const isImage = result.includes('.png') || result.includes('.jpg') || result.includes('.jpeg') || result.includes('.gif')
-            uploadedAttachments.push(`${isImage ? '!' : ''}[${result.split('_')[2]}](/${result})`)
+            uploadedAttachments.push(`${isImage ? '!' : ''}[${result.split('-').slice(2).join('-')}](/_files/${result})`)
         }
     }
 

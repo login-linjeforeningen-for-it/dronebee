@@ -12,7 +12,7 @@ type Page = {
     path: string
     title: string
     content: string
-    description: string
+    description: string | null
 }
 
 export default async function getLatestCase(list: Page) {
