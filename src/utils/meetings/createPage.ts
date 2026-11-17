@@ -11,10 +11,11 @@ type CreatePageProps = {
     content: string
     description: string
     path: string
+    tags: string[]
     title: string
 }
 
-export default async function createPage({ content, description, path, title }: CreatePageProps) {
+export default async function createPage({ content, description, path, tags, title }: CreatePageProps) {
     const result = await requestWithRetries({
         path: `/sites/${WIKI_SITE_ID}/pages`,
         method: 'POST',
@@ -25,7 +26,7 @@ export default async function createPage({ content, description, path, title }: 
             locale: 'en',
             path: path.replace(/^\//, ''),
             publishState: 'published',
-            tags: ['TekKom', 'TekKom Verv', 'Møte', 'TekKom Møte', 'TekKom Verv Møte', 'Meeting', 'TekKom Meeting'],
+            tags,
             title
         }
     })

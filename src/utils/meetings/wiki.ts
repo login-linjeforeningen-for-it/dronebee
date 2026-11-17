@@ -59,6 +59,12 @@ export default async function autoCreate({ channel, isStyret }: AutoCreateProps)
             ? `Styremøte uke ${path.currentWeek}`
             : `TekKom Meeting Week ${path.currentWeek}`,
         path: fullPath,
+        tags: [
+            ...(isStyret
+                ? ['Styret', 'Møte', 'Styremøte']
+                : ['TekKom', 'TekKom Verv', 'Møte', 'TekKom Møte', 'TekKom Verv Møte', 'Meeting', 'TekKom Meeting']),
+            path.nextPath.slice(0, 4)
+        ],
         title: path.nextPath
     })
 
