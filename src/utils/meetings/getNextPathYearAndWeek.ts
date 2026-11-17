@@ -8,13 +8,6 @@ export default  function getNextPathYearAndWeek(isStyret: boolean) {
     // Calculate current week's year and week
     const currentWeek = getYearAndWeek(currentDate)
 
-    // Move to next week's date
-    const nextWeekDate = new Date(currentDate)
-    nextWeekDate.setDate(nextWeekDate.getDate() + 7)
-
-    // Calculate next week's year and week
-    const nextWeek = getYearAndWeek(nextWeekDate)
-
     // The page is created on the Monday of the meeting week, but the meeting
     // itself is on the Thursday. Format that Thursday to dd.mm.yy.
     const meetingDate = new Date(currentDate)
@@ -35,9 +28,7 @@ export default  function getNextPathYearAndWeek(isStyret: boolean) {
 
     return {
         currentPath: isStyret ? `${currentWeek.year}-${currentWeek.week - 1}` : '2026-00',
-        nextPath: isStyret
-            ? `${nextWeek.year}-${nextWeek.week - 1}`
-            : `${currentWeek.year}-${currentWeek.week}`,
+        nextPath: `${currentWeek.year}-${String(currentWeek.week).padStart(2, '0')}`,
         currentWeek: currentWeek.week,
         date: isStyret ? today : meeting
     }

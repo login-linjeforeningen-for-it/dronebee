@@ -2,9 +2,7 @@ import { TextChannel } from 'discord.js'
 import updateStyretTemplate from '#utils/meetings/updateStyretTemplate.ts'
 import { getPage } from '#utils/meetings/wikiPage.ts'
 import getNextPathYearAndWeek from '#utils/meetings/getNextPathYearAndWeek.ts'
-import updateIndex from '#utils/meetings/updateIndexPage.ts'
 import createPage from '#utils/meetings/createPage.ts'
-import { STYRET_PAGE, TEKKOM_PAGE } from '#constants'
 import { envLoad } from 'utilbee'
 
 envLoad({ path: '.env' })
@@ -47,7 +45,7 @@ export default async function autoCreate({ channel, isStyret }: AutoCreateProps)
         channel,
         isStyret,
         template: filledTemplate,
-        week: path.nextPath.split('-')[1]
+        week: String(path.currentWeek)
     })
 
     if (!updatedTemplate) {
@@ -58,13 +56,11 @@ export default async function autoCreate({ channel, isStyret }: AutoCreateProps)
     const createResponse = await createPage({
         content: updatedTemplate,
         description: isStyret
-            ? `Styremøte uke ${path.nextPath.slice(5)}`
-            : `TekKom Meeting Week ${path.nextPath.slice(5)}`,
+            ? `Styremøte uke ${path.currentWeek}`
+            : `TekKom Meeting Week ${path.currentWeek}`,
         path: fullPath,
         title: path.nextPath
     })
 
     console.log(`Create response for ${isStyret ? 'Styret' : 'TekKom'} at ${now}: ${JSON.stringify(createResponse)}`)
-
-    updateIndex({ path, pageId: isStyret ? STYRET_PAGE : TEKKOM_PAGE, isStyret })
 }

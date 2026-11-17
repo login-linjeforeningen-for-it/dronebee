@@ -1,8 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
-import { getPage } from '#utils/meetings/wikiPage.ts'
 import getLatestCase from '#utils/meetings/getLatestCase.ts'
 import uploadAttachmentToWiki from '#utils/meetings/uploadAttachment.ts'
-import { STYRET_PAGE } from '#constants'
 
 type StyretTemplateProps = {
     channel: TextChannel
@@ -46,8 +44,7 @@ export default async function updateStyretTemplate({channel, isStyret, template,
     }
 
     // Finds the latest case number
-    const page = await getPage(STYRET_PAGE)
-    let caseNumber = await getLatestCase(page) + 1
+    let caseNumber = await getLatestCase() + 1
     const messages = await meetingThread[1].messages.fetch({ limit: 100 })
     const reduced: MessageOverview = { orientations: [], discussions: [], statutes: [] }
     const year = new Date().getFullYear().toString().slice(2)
