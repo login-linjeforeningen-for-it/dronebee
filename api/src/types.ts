@@ -23,6 +23,7 @@ declare global {
         color?: string
         interval?: string
         time?: string
+        event_id?: number | null
     }
 
     type RecurringAnnouncement = {

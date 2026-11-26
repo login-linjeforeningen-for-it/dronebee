@@ -72,7 +72,8 @@ CREATE TABLE IF NOT EXISTS announcements (
     interval TEXT,
     time TIMESTAMPTZ,
     sent BOOLEAN DEFAULT false,
-    last_sent TIMESTAMPTZ
+    last_sent TIMESTAMPTZ,
+    event_id INT
 );
 
 -- Hidden 

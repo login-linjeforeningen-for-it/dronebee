@@ -139,6 +139,9 @@ type Announcement = {
     color?: string
     interval?: string
     time?: string
+    event_id?: number | null
+    components?: unknown[]
+    banner?: string
 }
 
 type Role = {

@@ -63,7 +63,9 @@ const config = {
     SPOTIFY_API_TRACK_URL: 'https://api.spotify.com/v1/tracks',
     SPOTIFY_API_EPISODE_URL: 'https://api.spotify.com/v1/episodes',
     SPOTIFY_API_TOKEN_URL: 'https://accounts.spotify.com/api/token',
-    SPOTIFY_API_TOKEN: btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`)
+    SPOTIFY_API_TOKEN: btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`),
+    WORKERBEE_API_URL: process.env.WORKERBEE_API_URL || 'https://workerbee.login.no/api/v2',
+    CDN_URL: process.env.CDN_URL || 'https://tekkom-beehive.s3.de.io.cloud.ovh.net'
 }
 
 export default config

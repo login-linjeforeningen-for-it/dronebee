@@ -12,10 +12,11 @@ type PutAnnouncements = {
     color?: string
     interval: string
     time: string
+    event_id?: number
 }
 
 export default async function putAnnouncements(req: FastifyRequest, res: FastifyReply) {
-    const { id, title, description, channel, roles, embed, color, interval, time } = (req.body as PutAnnouncements) ?? {}
+    const { id, title, description, channel, roles, embed, color, interval, time, event_id } = (req.body as PutAnnouncements) ?? {}
     const { valid } = await tokenWrapper(req, res)
     if (!valid) {
         return res.status(400).send({ error: 'Unauthorized' })
@@ -43,9 +44,13 @@ export default async function putAnnouncements(req: FastifyRequest, res: Fastify
 
         await run(
             `UPDATE announcements 
-            SET title = $2, description = $3, channel = $4, roles = $5, embed = $6, color = $7, interval = $8, time = $9
+            SET title = $2, description = $3, channel = $4, roles = $5, embed = $6, color = $7, interval = $8, time = $9,
+                event_id = COALESCE($10, event_id)
             WHERE id = $1;`,
-            [id, title, description, channel, roles, typeof embed === 'boolean' ? embed : false, color || null, interval, time]
+            [
+                id, title, description, channel, roles, typeof embed === 'boolean' ? embed : false,
+                color || null, interval, time, event_id || null
+            ]
         )
 
         return res.send({ message: `Successfully updated announcement ${id}.` })

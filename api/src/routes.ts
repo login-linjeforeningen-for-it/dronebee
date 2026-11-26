@@ -3,6 +3,7 @@ import getAnnouncements from './handlers/announcements/get.ts'
 import postAnnouncements from './handlers/announcements/post.ts'
 import putAnnouncements from './handlers/announcements/put.ts'
 import deleteAnnouncements from './handlers/announcements/delete.ts'
+import previewAnnouncement from './handlers/announcements/preview.ts'
 import getChannels from './handlers/channels/get.ts'
 import postChannels from './handlers/channels/post.ts'
 import getIndex from './handlers/index/getIndex.ts'
@@ -37,6 +38,7 @@ export default async function apiRoutes(fastify: FastifyInstance, _: FastifyPlug
     fastify.put('/announcements', putAnnouncements)
     fastify.post('/announcements', postAnnouncements)
     fastify.delete('/announcements', deleteAnnouncements)
+    fastify.post('/announcements/preview', previewAnnouncement)
     fastify.post('/sent', postSentAnnouncements)
 
     // activity
