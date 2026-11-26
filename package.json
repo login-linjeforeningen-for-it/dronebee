@@ -10,12 +10,12 @@
         "fast": "bun src/index.ts",
         "lint": "eslint ./src",
         "lint:fix": "eslint --fix ./src",
-    "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit"
     },
     "author": "Login - Linjeforeningen for IT",
     "license": "MIT",
     "dependencies": {
-        "discord.js": "^14.26.4",
+        "discord.js": "^14.28.1",
         "utilbee": "^1.4.7"
     },
     "devDependencies": {
@@ -25,6 +25,9 @@
         "eslint": "^10.5.0",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.61.1"
+    },
+    "overrides": {
+        "undici": "^6.29.1"
     },
     "imports": {
         "#config": "./src/config.ts",
