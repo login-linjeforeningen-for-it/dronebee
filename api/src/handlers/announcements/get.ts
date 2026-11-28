@@ -32,7 +32,7 @@ export default async function getAnnouncements(req: FastifyRequest, res: Fastify
     const start = Date.now()
     const result = await run(query, [offsetInt, limitInt, activeBool, shouldBeSentBool, searchTerm])
     const duration = (Date.now() - start) / 1000
-    alertSlowQuery(duration, 'announcements')
+    alertSlowQuery(duration, 'Announcements')
 
     if (parseBool(includePlaceholders)) {
         return res.send({ announcements: result.rows, total_count: result.rows[0]?.total_count || 0 })

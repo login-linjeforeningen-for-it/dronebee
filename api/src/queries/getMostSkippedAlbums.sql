@@ -1,32 +1,35 @@
-WITH top_songs AS (
-    SELECT DISTINCT ON (s.album, s.artist)
-        s.album,
-        s.artist,
-        s.name AS top_song,
-        s."image" AS top_song_image,
-        s.id,
-        COUNT(l2.*) AS play_count
-    FROM songs s
-    JOIN listens l2
-        ON l2.song_id = s.id
-    GROUP BY s.album, s.artist, s.name, s."image", s.id
-    ORDER BY s.album, s.artist, COUNT(l2.*) DESC
+WITH per_song AS (
+    SELECT s.id, s.name, s."image", s.album, s.artist,
+        COUNT(*) AS plays,
+        COUNT(*) FILTER (WHERE l.skipped) AS skips
+    FROM listens l
+    JOIN songs s ON l.song_id = s.id
+    GROUP BY s.id
+),
+groups AS (
+    SELECT album, artist, SUM(skips)::INT AS skips
+    FROM per_song
+    GROUP BY album, artist
+    ORDER BY skips DESC
+    LIMIT 5
+),
+top_songs AS (
+    SELECT DISTINCT ON (p.album, p.artist) p.*
+    FROM per_song p
+    JOIN groups g ON g.album = p.album AND g.artist = p.artist
+    ORDER BY p.album, p.artist, p.plays DESC
 )
 SELECT
     al.name AS album,
     al.id AS album_id,
     ar.name AS artist,
     ar.id AS artist_id,
-    SUM(CASE WHEN l.skipped THEN 1 ELSE 0 END)::INT AS skips,
-    t.top_song,
-    t.top_song_image,
+    g.skips,
+    t.name AS top_song,
+    t."image" AS top_song_image,
     t.id AS song_id
-FROM listens l
-JOIN songs s ON l.song_id = s.id
-JOIN albums al ON s.album = al.id
-JOIN artists ar ON s.artist = ar.id
-JOIN top_songs t
-    ON s.album = t.album AND s.artist = t.artist
-GROUP BY al.name, al.id, ar.name, ar.id, t.top_song, t.top_song_image, t.id
-ORDER BY skips DESC
-LIMIT 5;
+FROM groups g
+JOIN albums al ON g.album = al.id
+JOIN artists ar ON g.artist = ar.id
+JOIN top_songs t ON g.album = t.album AND g.artist = t.artist
+ORDER BY g.skips DESC;

@@ -1,184 +1,44 @@
 import run from '#db'
 import { loadSQL } from '#utils/loadSQL.ts'
 
+const queries = {
+    stats: 'getStatistics',
+    mostPlayedAlbums: 'getMostPlayedAlbums',
+    mostPlayedArtists: 'getMostPlayedArtists',
+    mostPlayedSongs: 'getMostPlayedSongs',
+    mostPlayedEpisodes: 'getMostPlayedEpisodes',
+    mostPlayedSongsPerDay: 'getSongsPlayedPerDay',
+    topFiveToday: 'getTopFiveSongsToday',
+    topFiveYesterday: 'getTopFiveSongsYesterday',
+    topFiveThisWeek: 'getTopFiveSongsThisWeek',
+    topFiveLastWeek: 'getTopFiveSongsLastWeek',
+    topFiveThisMonth: 'getTopFiveSongsThisMonth',
+    topFiveEpisodesThisMonth: 'getTopFiveEpisodesThisMonth',
+    topFiveLastMonth: 'getTopFiveSongsLastMonth',
+    topFiveEpisodesLastMonth: 'getTopFiveEpisodesLastMonth',
+    topFiveThisYear: 'getTopFiveSongsThisYear',
+    topFiveLastYear: 'getTopFiveSongsLastYear',
+    mostActiveUsers: 'getMostActiveListenUsers',
+    mostSkippingUsers: 'getMostSkippingUsers',
+    mostLikedAlbums: 'getMostLikedAlbums',
+    mostLikedArtists: 'getMostLikedArtists',
+    mostLikedSongs: 'getMostLikedSongs',
+    mostLikedEpisodes: 'getMostLikedEpisodes',
+    mostSkippedAlbums: 'getMostSkippedAlbums',
+    mostSkippedArtists: 'getMostSkippedArtists',
+    mostSkippedSongs: 'getMostSkippedSongs',
+    mostSkippedEpisodes: 'getMostSkippedEpisodes',
+    mostInspiredEpisodes: 'getMostInspiredEpisodes',
+    mostInspiredSongs: 'getMostInspiredSongs'
+}
+
 export default async function preloadListenActivityQueriesCold() {
-    const [
-        getStatistics,
-        getMostPlayedAlbums,
-        getMostPlayedArtists,
-        getMostPlayedSongs,
-        getMostPlayedEpisodes,
-        getSongsPlayedPerDay,
-        getTopFiveSongsToday,
-        getTopFiveSongsYesterday,
-        getTopFiveSongsThisWeek,
-        getTopFiveSongsLastWeek,
-        getTopFiveSongsThisMonth,
-        getTopFiveEpisodesThisMonth,
-        getTopFiveSongsLastMonth,
-        getTopFiveEpisodesLastMonth,
-        getTopFiveSongsThisYear,
-        getTopFiveSongsLastYear,
-        getMostActiveListenUsers,
-        getMostSkippingUsers,
-        getMostLikedAlbums,
-        getMostLikedArtists,
-        getMostLikedSongs,
-        getMostLikedEpisodes,
-        getMostSkippedAlbums,
-        getMostSkippedArtists,
-        getMostSkippedSongs,
-        getMostSkippedEpisodes,
-        getMostInspiredEpisodes,
-        getMostInspiredSongs
-    ] = await Promise.all([
-        loadSQL('getStatistics.sql'),
-        loadSQL('getMostPlayedAlbums.sql'),
-        loadSQL('getMostPlayedArtists.sql'),
-        loadSQL('getMostPlayedSongs.sql'),
-        loadSQL('getMostPlayedEpisodes.sql'),
-        loadSQL('getSongsPlayedPerDay.sql'),
-        loadSQL('getTopFiveSongsToday.sql'),
-        loadSQL('getTopFiveSongsYesterday.sql'),
-        loadSQL('getTopFiveSongsThisWeek.sql'),
-        loadSQL('getTopFiveSongsLastWeek.sql'),
-        loadSQL('getTopFiveSongsThisMonth.sql'),
-        loadSQL('getTopFiveEpisodesThisMonth.sql'),
-        loadSQL('getTopFiveSongsLastMonth.sql'),
-        loadSQL('getTopFiveEpisodesLastMonth.sql'),
-        loadSQL('getTopFiveSongsThisYear.sql'),
-        loadSQL('getTopFiveSongsLastYear.sql'),
-        loadSQL('getMostActiveListenUsers.sql'),
-        loadSQL('getMostSkippingUsers.sql'),
-        loadSQL('getMostLikedAlbums.sql'),
-        loadSQL('getMostLikedArtists.sql'),
-        loadSQL('getMostLikedSongs.sql'),
-        loadSQL('getMostLikedEpisodes.sql'),
-        loadSQL('getMostSkippedAlbums.sql'),
-        loadSQL('getMostSkippedArtists.sql'),
-        loadSQL('getMostSkippedSongs.sql'),
-        loadSQL('getMostSkippedEpisodes.sql'),
-        loadSQL('getMostInspiredEpisodes.sql'),
-        loadSQL('getMostInspiredSongs.sql')
-    ])
+    const result: Record<string, unknown> = {}
 
-    const [
-        statsResult,
-        mostPlayedAlbumsResult,
-        mostPlayedArtistsResult,
-        mostPlayedSongsResult,
-        mostPlayedEpisodesResult,
-        mostPlayedSongsPerDayResult,
-        topFiveTodayResult,
-        topFiveYesterdayResult,
-        topFiveThisWeekResult,
-        topFiveLastWeekResult,
-        topFiveThisMonthResult,
-        topFiveEpisodesThisMonthResult,
-        topFiveLastMonthResult,
-        topFiveEpisodesLastMonthResult,
-        topFiveThisYearResult,
-        topFiveLastYearResult,
-        mostActiveUsersResult,
-        mostSkippingUsersResult,
-        mostLikedAlbumsResult,
-        mostLikedArtistsResult,
-        mostLikedSongsResult,
-        mostLikedEpisodesResult,
-        mostSkippedAlbumsResult,
-        mostSkippedArtistsResult,
-        mostSkippedSongsResult,
-        mostSkippedEpisodesResult,
-        mostInspiredEpisodesResult,
-        mostInspiredSongsResult
-    ] = await Promise.all([
-        run(getStatistics),
-        run(getMostPlayedAlbums),
-        run(getMostPlayedArtists),
-        run(getMostPlayedSongs),
-        run(getMostPlayedEpisodes),
-        run(getSongsPlayedPerDay),
-        run(getTopFiveSongsToday),
-        run(getTopFiveSongsYesterday),
-        run(getTopFiveSongsThisWeek),
-        run(getTopFiveSongsLastWeek),
-        run(getTopFiveSongsThisMonth),
-        run(getTopFiveEpisodesThisMonth),
-        run(getTopFiveSongsLastMonth),
-        run(getTopFiveEpisodesLastMonth),
-        run(getTopFiveSongsThisYear),
-        run(getTopFiveSongsLastYear),
-        run(getMostActiveListenUsers),
-        run(getMostSkippingUsers),
-        run(getMostLikedAlbums),
-        run(getMostLikedArtists),
-        run(getMostLikedSongs),
-        run(getMostLikedEpisodes),
-        run(getMostSkippedAlbums),
-        run(getMostSkippedArtists),
-        run(getMostSkippedSongs),
-        run(getMostSkippedEpisodes),
-        run(getMostInspiredEpisodes),
-        run(getMostInspiredSongs)
-    ])
-
-    const stats = statsResult.rows[0]
-    const mostPlayedAlbums = mostPlayedAlbumsResult.rows
-    const mostPlayedArtists = mostPlayedArtistsResult.rows
-    const mostPlayedSongs = mostPlayedSongsResult.rows
-    const mostPlayedEpisodes = mostPlayedEpisodesResult.rows
-    const mostPlayedSongsPerDay = mostPlayedSongsPerDayResult.rows
-    const topFiveToday = topFiveTodayResult.rows
-    const topFiveYesterday = topFiveYesterdayResult.rows
-    const topFiveThisWeek = topFiveThisWeekResult.rows
-    const topFiveLastWeek = topFiveLastWeekResult.rows
-    const topFiveThisMonth = topFiveThisMonthResult.rows
-    const topFiveEpisodesThisMonth = topFiveEpisodesThisMonthResult.rows
-    const topFiveLastMonth = topFiveLastMonthResult.rows
-    const topFiveEpisodesLastMonth = topFiveEpisodesLastMonthResult.rows
-    const topFiveThisYear = topFiveThisYearResult.rows
-    const topFiveLastYear = topFiveLastYearResult.rows
-    const mostActiveUsers = mostActiveUsersResult.rows
-    const mostSkippingUsers = mostSkippingUsersResult.rows
-    const mostLikedAlbums = mostLikedAlbumsResult.rows
-    const mostLikedArtists = mostLikedArtistsResult.rows
-    const mostLikedSongs = mostLikedSongsResult.rows
-    const mostLikedEpisodes = mostLikedEpisodesResult.rows
-    const mostSkippedAlbums = mostSkippedAlbumsResult.rows
-    const mostSkippedArtists = mostSkippedArtistsResult.rows
-    const mostSkippedSongs = mostSkippedSongsResult.rows
-    const mostSkippedEpisodes = mostSkippedEpisodesResult.rows
-    const mostInspiredEpisodes = mostInspiredEpisodesResult.rows
-    const mostInspiredSongs = mostInspiredSongsResult.rows
-
-    return {
-        stats,
-        mostPlayedAlbums,
-        mostPlayedArtists,
-        mostPlayedSongs,
-        mostPlayedEpisodes,
-        mostPlayedSongsPerDay,
-        topFiveToday,
-        topFiveYesterday,
-        topFiveThisWeek,
-        topFiveLastWeek,
-        topFiveThisMonth,
-        topFiveEpisodesThisMonth,
-        topFiveLastMonth,
-        topFiveEpisodesLastMonth,
-        topFiveThisYear,
-        topFiveLastYear,
-        mostActiveUsers,
-        mostSkippingUsers,
-        mostLikedAlbums,
-        mostLikedArtists,
-        mostLikedSongs,
-        mostLikedEpisodes,
-        mostSkippedAlbums,
-        mostSkippedArtists,
-        mostSkippedSongs,
-        mostSkippedEpisodes,
-        mostInspiredEpisodes,
-        mostInspiredSongs
+    for (const [key, file] of Object.entries(queries)) {
+        const { rows } = await run(await loadSQL(`${file}.sql`))
+        result[key] = key === 'stats' ? rows[0] : rows
     }
+
+    return result
 }

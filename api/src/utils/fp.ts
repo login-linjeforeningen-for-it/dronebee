@@ -14,7 +14,7 @@ export default fp(async (fastify) => {
         fastify.listenHot = await preloadListenActivityQueriesHot()
         console.log('Refresh listens HOT (keys):', Object.keys(fastify.listenHot))
 
-        alertSlowQuery((Date.now() - start) / 1000, 'cache hot')
+        alertSlowQuery((Date.now() - start) / 1000, 'Hot cache')
         console.log('Hot activity queries refreshed')
     }
 
@@ -24,7 +24,7 @@ export default fp(async (fastify) => {
         fastify.listenCold = await preloadListenActivityQueriesCold()
         console.log('Refresh listens COLD (keys):', Object.keys(fastify.listenCold))
 
-        alertSlowQuery((Date.now() - start) / 1000, 'cache-cold')
+        alertSlowQuery((Date.now() - start) / 1000, 'Cold cache', config.CACHE_TTL_COLD)
         console.log('Cold activity queries refreshed')
     }
 

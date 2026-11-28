@@ -1,36 +1,33 @@
-WITH artist_counts AS (
-    SELECT 
-        s.artist,
-        COUNT(*)::INT AS listens
+WITH per_song AS (
+    SELECT s.id, s.name, s."image", s.album, s.artist, COUNT(*) AS plays
     FROM listens l
     JOIN songs s ON l.song_id = s.id
-    GROUP BY s.artist
+    WHERE s.artist NOT IN ('Unknown', 'undefined')
+    GROUP BY s.id
+),
+groups AS (
+    SELECT artist, SUM(plays)::INT AS listens
+    FROM per_song
+    GROUP BY artist
+    ORDER BY listens DESC
+    LIMIT 5
 ),
 top_songs AS (
-    SELECT DISTINCT ON (s.artist)
-        s.artist,
-        s.name AS top_song,
-        al.name AS album,
-        s."image",
-        s.id
-    FROM songs s
-    JOIN listens l ON l.song_id = s.id
-    JOIN albums al ON s.album = al.id
-    ORDER BY s.artist, COUNT(l.*) OVER (PARTITION BY s.artist, s.id) DESC
+    SELECT DISTINCT ON (p.artist) p.*
+    FROM per_song p
+    JOIN groups g ON g.artist = p.artist
+    ORDER BY p.artist, p.plays DESC
 )
-SELECT 
+SELECT
     ar.name AS artist,
     ar.id AS artist_id,
-    ac.listens,
-    ts.top_song,
-    ts.album,
-    ts."image",
-    ts.id AS song_id
-FROM artist_counts ac
-JOIN artists ar ON ac.artist = ar.id
-LEFT JOIN top_songs ts ON ac.artist = ts.artist
-WHERE ar.id IS NOT NULL
-  AND ar.id <> 'Unknown'
-  AND ar.id <> 'undefined'
-ORDER BY ac.listens DESC
-LIMIT 5;
+    g.listens,
+    t.name AS top_song,
+    al.name AS album,
+    t."image",
+    t.id AS song_id
+FROM groups g
+JOIN artists ar ON g.artist = ar.id
+LEFT JOIN top_songs t ON g.artist = t.artist
+LEFT JOIN albums al ON t.album = al.id
+ORDER BY g.listens DESC;

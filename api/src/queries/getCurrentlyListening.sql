@@ -10,9 +10,10 @@ SELECT * FROM (
   FROM listens l
   LEFT JOIN songs s ON l.song_id = s.id
   LEFT JOIN episodes e ON l.song_id = e.id
-  LEFT JOIN artists ar ON s.artist = ar.id OR e.show = ar.id
+  LEFT JOIN artists ar ON ar.id = COALESCE(s.artist, e.show)
   LEFT JOIN albums al ON s.album = al.id
-  WHERE l."start" <= NOW()
+  WHERE l."start" >= NOW() - INTERVAL '1 day'
+    AND l."start" <= NOW()
     AND l."end" >= NOW()
     AND NOT l.skipped
   ORDER BY l.user_id, l."start" DESC

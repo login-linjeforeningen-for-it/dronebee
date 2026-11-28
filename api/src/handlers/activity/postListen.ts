@@ -1,6 +1,5 @@
 import config from '#constants'
 import run from '#db'
-import artistIdAndAlbumIdIsKnownBySongId from '#utils/artistIdAndAlbumIdIsKnownBySongId.ts'
 import getSpotifyToken from '#utils/getSpotifyToken.ts'
 import { loadSQL } from '#utils/loadSQL.ts'
 import tokenWrapper from '#utils/tokenWrapper.ts'
@@ -98,7 +97,7 @@ export default async function postListen(
             type = 'episode'
         }
 
-        const artistIdAndAlbumIdIsNotKnown = !(await artistIdAndAlbumIdIsKnownBySongId(id))
+        const artistIdAndAlbumIdIsNotKnown = !existingSong || existingSong.album === 'Unknown' || existingSong.artist === 'Unknown'
         const shouldQuerySpotify = artistIdAndAlbumIdIsNotKnown || Math.random() < 0.1
 
         if (shouldQuerySpotify) {
